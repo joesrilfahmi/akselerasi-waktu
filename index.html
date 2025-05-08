@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulator Waktu Percepatan</title>
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --text: #1e293b;
+        --text-light: #64748b;
+        --background: #f8fafc;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --shadow: rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+          sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        line-height: 1.5;
+      }
+
+      .container {
+        background-color: var(--card);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px var(--shadow);
+        width: 100%;
+        max-width: 480px;
+        padding: 32px;
+        transition: all 0.3s ease;
+      }
+
+      h1 {
+        color: var(--text);
+        text-align: center;
+        margin-bottom: 32px;
+        font-size: 1.75rem;
+        font-weight: 700;
+      }
+
+      .input-section {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .input-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .speed-field {
+        margin-bottom: 24px;
+      }
+
+      label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-light);
+      }
+
+      select {
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background-color: var(--card);
+        color: var(--text);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+      }
+
+      select:focus {
+        outline: none;
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+
+      .result {
+        margin-top: 32px;
+        padding: 24px;
+        background-color: var(--background);
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .result h2 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        color: var(--text-light);
+        font-weight: 500;
+      }
+
+      .result-display {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--primary);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.05em;
+      }
+
+      /* Responsive */
+      @media (max-width: 480px) {
+        .container {
+          padding: 24px;
+          border-radius: 12px;
+        }
+
+        .input-section {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
+        .result {
+          padding: 20px;
+        }
+
+        .result-display {
+          font-size: 1.75rem;
+        }
+      }
+
+      @media (min-width: 481px) and (max-width: 768px) {
+        .input-section {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+
+        select {
+          padding: 10px 12px;
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Kalkulator Waktu Percepatan</h1>
+
+      <div class="input-section">
+        <div class="input-field">
+          <label for="hours">Jam</label>
+          <select id="hours"></select>
+        </div>
+        <div class="input-field">
+          <label for="minutes">Menit</label>
+          <select id="minutes"></select>
+        </div>
+        <div class="input-field">
+          <label for="seconds">Detik</label>
+          <select id="seconds"></select>
+        </div>
+      </div>
+
+      <div class="input-field speed-field">
+        <label for="speed">Kecepatan Pemutaran (x)</label>
+        <select id="speed"></select>
+      </div>
+
+      <div class="result">
+        <h2>Waktu Setelah Percepatan</h2>
+        <div class="result-display" id="result">00:00:00</div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const hoursSelect = document.getElementById("hours");
+        const minutesSelect = document.getElementById("minutes");
+        const secondsSelect = document.getElementById("seconds");
+        const speedSelect = document.getElementById("speed");
+        const resultDisplay = document.getElementById("result");
+
+        // Populate hours dropdown (0-24)
+        for (let i = 0; i <= 24; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = i < 10 ? `0${i}` : i;
+          hoursSelect.appendChild(option);
+        }
+
+        // Populate minutes and seconds dropdowns (0-59)
+        for (let i = 0; i <= 59; i++) {
+          const minuteOption = document.createElement("option");
+          minuteOption.value = i;
+          minuteOption.textContent = i < 10 ? `0${i}` : i;
+          minutesSelect.appendChild(minuteOption);
+
+          const secondOption = document.createElement("option");
+          secondOption.value = i;
+          secondOption.textContent = i < 10 ? `0${i}` : i;
+          secondsSelect.appendChild(secondOption);
+        }
+
+        // Populate speed dropdown (0.1 to 5.0)
+        const speedValues = [
+          0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 3.5, 4.0,
+          5.0,
+        ];
+        for (const speed of speedValues) {
+          const option = document.createElement("option");
+          option.value = speed;
+          option.textContent = `${speed}x`;
+
+          // Set 1.5x as default
+          if (speed === 1.5) {
+            option.selected = true;
+          }
+
+          speedSelect.appendChild(option);
+        }
+
+        // Set default values from example (1h 12m 14s)
+        hoursSelect.value = 1;
+        minutesSelect.value = 12;
+        secondsSelect.value = 14;
+
+        // Fungsi untuk menghitung waktu yang dipercepat
+        function calculateAcceleratedTime() {
+          // Mengambil nilai select
+          const hours = parseInt(hoursSelect.value) || 0;
+          const minutes = parseInt(minutesSelect.value) || 0;
+          const seconds = parseInt(secondsSelect.value) || 0;
+          const speed = parseFloat(speedSelect.value) || 1;
+
+          // Konversi semua ke detik
+          const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+          // Hitung waktu setelah percepatan
+          const acceleratedSeconds = totalSeconds / speed;
+
+          // Konversi kembali ke format jam:menit:detik
+          const acceleratedHours = Math.floor(acceleratedSeconds / 3600);
+          const acceleratedMinutes = Math.floor(
+            (acceleratedSeconds % 3600) / 60
+          );
+          const acceleratedSecondsRemainder = Math.round(
+            acceleratedSeconds % 60
+          );
+
+          // Format hasil
+          const formattedResult = `${String(acceleratedHours).padStart(
+            2,
+            "0"
+          )}:${String(acceleratedMinutes).padStart(2, "0")}:${String(
+            acceleratedSecondsRemainder
+          ).padStart(2, "0")}`;
+
+          // Tampilkan hasil
+          resultDisplay.textContent = formattedResult;
+        }
+
+        // Event listener untuk selects (untuk perhitungan otomatis)
+        hoursSelect.addEventListener("change", calculateAcceleratedTime);
+        minutesSelect.addEventListener("change", calculateAcceleratedTime);
+        secondsSelect.addEventListener("change", calculateAcceleratedTime);
+        speedSelect.addEventListener("change", calculateAcceleratedTime);
+
+        // Hitung secara otomatis saat halaman dimuat
+        calculateAcceleratedTime();
+      });
+    </script>
+  </body>
+</html>
